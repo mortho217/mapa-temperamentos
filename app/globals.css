@@ -1,0 +1,7 @@
+(
+echo html, body {
+echo   margin: 0; padding: 0;
+echo   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+echo   background: #f8fafc; color: #0f172a;
+echo }
+) > app\globals.css

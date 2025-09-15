@@ -1,20 +1,22 @@
-'use client';
-import { useSearchParams } from 'next/navigation';
 import MapaResultados from '../../components/MapaResultados';
 
-export default function ResultadosPage() {
-  const sp = useSearchParams();
-  const clamp = (n: string | null) => {
-    const v = Number(n);
-    return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
-    // Asegura valores entre 0 y 100
-  };
+type Search = { SG?: string; CL?: string; FL?: string; ML?: string };
 
+const clamp = (n: string | undefined) => {
+  const v = Number(n);
+  return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
+};
+
+// (Opcional) Fuerza render dinámico si quieres evitar cualquier prerender:
+// export const dynamic = 'force-dynamic';
+// o también: export const revalidate = 0;
+
+export default function ResultadosPage({ searchParams }: { searchParams: Search }) {
   const scores = {
-    SG: clamp(sp.get('SG')),
-    CL: clamp(sp.get('CL')),
-    FL: clamp(sp.get('FL')),
-    ML: clamp(sp.get('ML')),
+    SG: clamp(searchParams.SG),
+    CL: clamp(searchParams.CL),
+    FL: clamp(searchParams.FL),
+    ML: clamp(searchParams.ML),
   };
 
   const allZero = Object.values(scores).every((v) => v === 0);
@@ -30,7 +32,7 @@ export default function ResultadosPage() {
           </code>
         </div>
       ) : (
-        <MapaResultados scores={scores} />
+        <MapaResultados scores={scores as any} />
       )}
     </main>
   );

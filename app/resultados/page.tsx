@@ -1,27 +1,37 @@
-use client';
+'use client';
 import { useSearchParams } from 'next/navigation';
-import MapaResultados from '@/components/MapaResultados';
-
+import MapaResultados from '../../components/MapaResultados';
 
 export default function ResultadosPage() {
-const sp = useSearchParams();
-const parse = (k: string) => {
-const v = Number(sp.get(k));
-return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 0;
-};
+  const sp = useSearchParams();
+  const clamp = (n: string | null) => {
+    const v = Number(n);
+    return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
+    // Asegura valores entre 0 y 100
+  };
 
+  const scores = {
+    SG: clamp(sp.get('SG')),
+    CL: clamp(sp.get('CL')),
+    FL: clamp(sp.get('FL')),
+    ML: clamp(sp.get('ML')),
+  };
 
-const scores = {
-SG: parse('SG'),
-CL: parse('CL'),
-FL: parse('FL'),
-ML: parse('ML'),
-};
+  const allZero = Object.values(scores).every((v) => v === 0);
 
-
-return (
-<main>
-<MapaResultados scores={scores} />
-</main>
-);
+  return (
+    <main style={{ padding: 16 }}>
+      {allZero ? (
+        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 16 }}>
+          <h2 style={{ marginTop: 0 }}>Faltan parámetros</h2>
+          <p>Abre esta página con la URL incluyendo valores, por ejemplo:</p>
+          <code style={{ display: 'block', marginTop: 8 }}>
+            /resultados?SG=45&CL=32&FL=18&ML=28
+          </code>
+        </div>
+      ) : (
+        <MapaResultados scores={scores} />
+      )}
+    </main>
+  );
 }

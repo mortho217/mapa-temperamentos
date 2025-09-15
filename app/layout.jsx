@@ -1,11 +1,9 @@
-(
-echo import './globals.css';
-echo.
-echo export default function RootLayout({ children }) {
-echo   return (
-echo     ^<html lang="es"^>
-echo       ^<body^>{children}^</body^>
-echo     ^</html^>
-echo   );
-echo }
-) > app\layout.jsx
+import './globals.css';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="es">
+      <body>{children}</body>
+    </html>
+  );
+}

@@ -1,68 +1,145 @@
-const color = isDominant ? base : isSecondary ? `${base}CC` : `${base}88`;
-return <Cell key={`cell-${idx}`} fill={color} />;
-})}
-</Bar>
-</BarChart>
-</ResponsiveContainer>
-</div>
-</div>
-</motion.div>
+import React from 'react';
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell
+} from 'recharts';
 
+type AxisKey = 'SG' | 'CL' | 'FL' | 'ML';
+type Scores = Record<AxisKey, number>;
 
-<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="mt-6">
-<h3 className="text-slate-800 font-semibold mb-2">Consejos inmediatos</h3>
-<p className="text-slate-600 text-sm mb-3">Tres acciones concretas para hoy según tu dominante:</p>
-<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-{dominant?.[0] === 'SG' && (
-<>
-<Tip color={COLORS.SG}>Prioriza 2 tareas clave y cierra ciclos.</Tip>
-<Tip color={COLORS.SG}>Usa Pomodoro 25/5 durante 2 bloques.</Tip>
-<Tip color={COLORS.SG}>Evita añadir tareas nuevas hasta terminar.</Tip>
-</>
-)}
-{dominant?.[0] === 'CL' && (
-<>
-<Tip color={COLORS.CL}>Pregunta expectativas antes de actuar.</Tip>
-<Tip color={COLORS.CL}>Pausa consciente de 90 s antes de responder.</Tip>
-<Tip color={COLORS.CL}>Delegar 1 tarea hoy con criterios claros.</Tip>
-</>
-)}
-{dominant?.[0] === 'FL' && (
-<>
-<Tip color={COLORS.FL}>Bloque de enfoque de 25 min ahora.</Tip>
-<Tip color={COLORS.FL}>Usa una frase asertiva para un pendiente.</Tip>
-<Tip color={COLORS.FL}>Revisa y ordena 3 prioridades.</Tip>
-</>
-)}
-{dominant?.[0] === 'ML' && (
-<>
-<Tip color={COLORS.ML}>Entrega una versión 80/20 hoy.</Tip>
-<Tip color={COLORS.ML}>Define un límite de 2 revisiones.</Tip>
-<Tip color={COLORS.ML}>Comparte un borrador temprano con alguien.</Tip>
-</>
-)}
-{!dominant && (
-<>
-<Tip color="#64748B">Haz el test extendido para aumentar la claridad.</Tip>
-<Tip color="#64748B">Elige una acción pequeña y hazla en 10 min.</Tip>
-<Tip color="#64748B">Evita la sobrecarga: 2 tareas máximo hoy.</Tip>
-</>
-)}
-</div>
-</motion.div>
+const COLORS: Record<AxisKey, string> = {
+  SG: '#FF8A00',
+  CL: '#E63946',
+  FL: '#2A9D8F',
+  ML: '#264653',
+};
 
+const LABELS: Record<AxisKey, string> = {
+  SG: 'Sanguíneo',
+  CL: 'Colérico',
+  FL: 'Flemático',
+  ML: 'Melancólico',
+};
 
-<p className="text-xs text-slate-500 mt-6">
-Este contenido es formativo, no clínico. Si atraviesas malestar significativo, busca apoyo profesional.
-</p>
-</div>
-);
+function getDominantAndSecondary(scores: Scores) {
+  const entries = (Object.entries(scores) as [AxisKey, number][])
+    .sort((a, b) => b[1] - a[1]);
+  const [first, second] = entries;
+  const dominant = first && first[1] >= 30 ? first : null;
+  const secondary =
+    second && second[1] >= 25 && first[1] - second[1] < 10 ? second : null;
+  return { entries, dominant, secondary };
 }
 
+function getClarityIndex(entries: [AxisKey, number][]) {
+  const [first, second] = entries;
+  const diff = Math.abs(first[1] - (second?.[1] ?? 0));
+  let ic: 'Alto' | 'Medio' | 'Bajo' = 'Bajo';
+  if (diff >= 12) ic = 'Alto';
+  else if (diff >= 7) ic = 'Medio';
+  return { ic, diff };
+}
 
-const Tip: React.FC<{ color: string; children: React.ReactNode }> = ({ color, children }) => (
-<label className="flex items-start gap-2 card p-3 cursor-pointer group">
-<input type="checkbox" className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-500 focus:ring-sky-400" />
-<span className="text-slate-700 text-sm leading-relaxed">{children}</span>
-</label>
+const Badge: React.FC<{ color: string; children: React.ReactNode }> = ({ color, children }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8,
+      borderRadius: 999,
+      padding: '6px 12px',
+      backgroundColor: `${color}20`,
+      color,
+    }}
+  >
+    <span style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: color }} />
+    {children}
+  </span>
 );
+
+export default function MapaResultados({ scores = { SG: 45, CL: 32, FL: 18, ML: 28 } }: { scores?: Scores }) {
+  const { entries, dominant, secondary } = getDominantAndSecondary(scores);
+  const { ic, diff } = getClarityIndex(entries);
+
+  const radarData = (Object.keys(scores) as AxisKey[]).map(k => ({
+    eje: LABELS[k],
+    key: k,
+    valor: scores[k],
+  }));
+
+  const barsData = (Object.keys(scores) as AxisKey[]).map(k => ({
+    key: k,
+    nombre: LABELS[k],
+    valor: scores[k],
+  }));
+
+  const dominanteStr = dominant ? `${LABELS[dominant[0]]} (${dominant[1]}%)` : '—';
+  const secundarioStr = secondary ? `${LABELS[secondary[0]]} (${secondary[1]}%)` : '—';
+
+  return (
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }}>
+      {/* Resumen */}
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 16, marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+          <Badge color={dominant ? COLORS[dominant[0]] : '#64748B'}>Dominante: {dominanteStr}</Badge>
+          <Badge color={secondary ? COLORS[secondary[0]] : '#94A3B8'}>Secundario: {secundarioStr}</Badge>
+          <Badge color="#0EA5E9">Claridad: {ic} ({diff} pts)</Badge>
+        </div>
+      </div>
+
+      {/* Radar */}
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 16, marginBottom: 16 }}>
+        <h3 style={{ margin: '0 0 8px', color: '#0f172a' }}>Mapa porcentual (radar)</h3>
+        <div style={{ height: 300 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="80%">
+              <PolarGrid />
+              <PolarAngleAxis dataKey="eje" tick={{ fill: '#475569', fontSize: 12 }} />
+              <PolarRadiusAxis tick={{ fill: '#94A3B8', fontSize: 10 }} angle={90} domain={[0, 100]} />
+              {(Object.keys(scores) as AxisKey[]).map((k) => (
+                <Radar
+                  key={k}
+                  name={LABELS[k]}
+                  dataKey={(d: any) => (d.key === k ? d.valor : 0)}
+                  stroke={COLORS[k]}
+                  fill={COLORS[k]}
+                  fillOpacity={0.18}
+                />
+              ))}
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Barras */}
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 16 }}>
+        <h3 style={{ margin: '0 0 8px', color: '#0f172a' }}>Intensidad por eje (barras)</h3>
+        <div style={{ height: 300 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={barsData} layout="vertical" margin={{ left: 24, right: 16, top: 8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" domain={[0, 100]} tick={{ fill: '#94A3B8' }} />
+              <YAxis dataKey="nombre" type="category" width={120} tick={{ fill: '#475569' }} />
+              <Tooltip formatter={(v: any, n: any) => [`${v}%`, n]} />
+              <Bar dataKey="valor" radius={[6, 6, 6, 6]}>
+                {barsData.map((entry, idx) => {
+                  const k = entry.key as AxisKey;
+                  const isDominant = !!(dominant && dominant[0] === k);
+                  const isSecondary = !!(secondary && secondary[0] === k);
+                  const base = COLORS[k];
+                  const color = isDominant ? base : isSecondary ? `${base}CC` : `${base}88`;
+                  return <Cell key={`cell-${idx}`} fill={color} />;
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Aviso ético */}
+      <p style={{ fontSize: 12, color: '#64748b', marginTop: 16 }}>
+        Este contenido es formativo, no clínico. Si atraviesas malestar significativo, busca apoyo profesional.
+      </p>
+    </div>
+  );
+}

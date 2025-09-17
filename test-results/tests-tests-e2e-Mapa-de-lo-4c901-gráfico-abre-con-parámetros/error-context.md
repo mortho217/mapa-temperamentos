@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- generic [active]:
+  - alert [ref=e1]
+  - dialog "Failed to compile" [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Failed to compile" [level=4] [ref=e7]
+      - generic [ref=e8]:
+        - generic [ref=e10]:
+          - generic [ref=e11]: ./components/MapaResultados.tsx:3:0
+          - generic [ref=e12]: Module not found
+          - generic [ref=e13]: ": Can't resolve '"
+          - generic [ref=e14]: recharts
+          - generic [ref=e15]: "'"
+          - generic [ref=e17]: 1 |
+          - generic [ref=e18]: "'use client'"
+          - generic [ref=e19]: ;
+          - generic [ref=e21]: 2 |
+          - generic [ref=e22]: import
+          - generic [ref=e24]: React
+          - generic [ref=e26]: from
+          - generic [ref=e28]: "'react'"
+          - generic [ref=e29]: ;
+          - generic [ref=e30]: ">"
+          - generic [ref=e31]: 3 |
+          - generic [ref=e32]: import
+          - generic [ref=e33]: "{"
+          - generic [ref=e35]: 4 |
+          - generic [ref=e37]: Radar
+          - generic [ref=e38]: ","
+          - generic [ref=e40]: RadarChart
+          - generic [ref=e41]: ","
+          - generic [ref=e43]: PolarGrid
+          - generic [ref=e44]: ","
+          - generic [ref=e46]: PolarAngleAxis
+          - generic [ref=e47]: ","
+          - generic [ref=e49]: PolarRadiusAxis
+          - generic [ref=e50]: ","
+          - generic [ref=e52]: 5 |
+          - generic [ref=e54]: ResponsiveContainer
+          - generic [ref=e55]: ","
+          - generic [ref=e57]: BarChart
+          - generic [ref=e58]: ","
+          - generic [ref=e60]: Bar
+          - generic [ref=e61]: ","
+          - generic [ref=e63]: XAxis
+          - generic [ref=e64]: ","
+          - generic [ref=e66]: YAxis
+          - generic [ref=e67]: ","
+          - generic [ref=e69]: CartesianGrid
+          - generic [ref=e70]: ","
+          - generic [ref=e72]: Tooltip
+          - generic [ref=e73]: ","
+          - generic [ref=e75]: Cell
+          - generic [ref=e77]: 6 |
+          - generic [ref=e78]: "}"
+          - generic [ref=e79]: from
+          - generic [ref=e81]: "'recharts'"
+          - generic [ref=e82]: ;
+          - generic [ref=e83]: https://nextjs.org/docs/messages/module-not-found
+        - contentinfo [ref=e84]:
+          - paragraph [ref=e85]:
+            - generic [ref=e86]: This error occurred during the build process and can only be dismissed by fixing the error.
+```
